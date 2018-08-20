@@ -1,0 +1,53 @@
+C-Post
+R-Get
+U-Put
+D-Delete
+
+1. Copiar la cadena de conexion del proyecto de datos y llevar al web config del proyecto Servicios
+2. Si trabajamos con entity framework instalalar en el proyecto de servicios
+3. Agregar Controlador Pero de tipo Api web 2 en blanco
+		/using Inmobiliaria.Datos.Modelo;
+		Agregar los servicios ejemplos
+		        [HttpGet]
+		        public IEnumerable<Inmuebles> Get()
+		        {    
+		            var LInmuebles = BD.Inmuebles.ToList();
+
+		            return LInmuebles;
+		        }
+3.1	Como trabajamos con tablas con referencia a otras debemos colocar este codigo para que entitiy no o el pai no reonocza una referencia circular pegar en el global ajax del proyecto del API o servicios
+			AreaRegistration.RegisterAllAreas();
+            GlobalConfiguration.Configure(WebApiConfig.Register);
+            FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
+            RouteConfig.RegisterRoutes(RouteTable.Routes);
+            BundleConfig.RegisterBundles(BundleTable.Bundles);
+
+            //Evito las referencias circulares al trabajar con Entity FrameWork         
+            GlobalConfiguration.Configuration.Formatters.JsonFormatter.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Serialize;
+            GlobalConfiguration.Configuration.Formatters.JsonFormatter.SerializerSettings.PreserveReferencesHandling = Newtonsoft.Json.PreserveReferencesHandling.Objects;
+
+            //Elimino que el sistema devuelva en XML, sólo trabajaremos con JSON
+            GlobalConfiguration.Configuration.Formatters.Remove(GlobalConfiguration.Configuration.Formatters.XmlFormatter);
+
+
+
+4. Comsumir Apis En el proyecto de Client o Presentacion o necesario
+5. En el caso de Presentacion que es un pryecto quye desde el Controlador invocamos el API
+	Indicamos que es un cliente de ApI rest
+	        HttpClient clienteHttp = new HttpClient(); 
+            //Indicamos donde tenemos las APi la Direccion
+            clienteHttp.BaseAddress = new Uri("http://localhost:53650/api/Inmuebles/");
+            //Consumimos apis y guardamos resultados
+            var request = clienteHttp.GetAsync("api/Inmuebles").Result;
+6. instalar el nuget newtonJson sino esta instalado
+
+
+Ya se el tema de las APIS normal.
+Pero...
+Cuando la tabla con la que estoy trabajando esta relacionada,  el API hace la consulta y devuelve la lista.  
+Pero cuando voy a consumir al API se supone que debo trabajar con la capa de dominio, entonces al momento de hacer el Jsonconvert, solo convierte el primer Item y el resto llega null porque como esa clase de dto de dominimo es difernete al de la capa de datos.
+(Tiene los public private virtual....) con la que trabajo el API.
+
+
+DUDAS
+como oporque evitar pintar el Id al actualizar

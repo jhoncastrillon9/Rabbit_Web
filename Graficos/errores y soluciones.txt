@@ -1,0 +1,29 @@
+El tipo ‘ObjectContent`1’ no pudo serializar el cuerpo de respuesta para el tipo de contenido
+Si estás usando un Web API con Entity Framework, es posible que te salte este error “El tipo ‘ObjectContent`1’ no pudo serializar el cuerpo de respuesta para el tipo de contenido“, al intentar recuperar algún registro.
+
+¿Por qué ha ocurrido esto?, bueno pues una de las posibles causas es que al intentar serializar con JSON, en nuestras tablas tenemos referencias a otras tablas (por ejemplo un foreign key) y la librería de NewtonJson nos diga que hay una referencia circular.
+
+¿Como arreglamos este error?. Tendremos que incorporar las siguientes líneas de código o bien en el WebApiConfig.cs o bien en el Global.asax.cs
+
+WebApiConfig
+
+  
+//Evito las referencias circulares al trabajar con Entity FrameWork         
+config.Formatters.JsonFormatter.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Serialize;
+config.Formatters.JsonFormatter.SerializerSettings.PreserveReferencesHandling = Newtonsoft.Json.PreserveReferencesHandling.Objects;
+            
+//Elimino que el sistema devuelva en XML, sólo trabajaremos con JSON
+config.Formatters.Remove(GlobalConfiguration.Configuration.Formatters.XmlFormatter);
+Global.asax
+
+  
+//Evito las referencias circulares al trabajar con Entity FrameWork         
+GlobalConfiguration.Configuration.Formatters.JsonFormatter.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Serialize;
+GlobalConfiguration.Configuration.Formatters.JsonFormatter.SerializerSettings.PreserveReferencesHandling = Newtonsoft.Json.PreserveReferencesHandling.Objects;
+            
+//Elimino que el sistema devuelva en XML, sólo trabajaremos con JSON
+GlobalConfiguration.Configuration.Formatters.Remove(GlobalConfiguration.Configuration.Formatters.XmlFormatter);
+Otra manera de localizar este problema es cuando nos aparece este mensaje de error:
+“An exception has occurred while using the formatter ‘JsonMediaTypeFormatter’ to generate sample for media type ‘application/json’. Exception message: Se han producido uno o varios errores.”
+
+Espero que os con esto se resuelva vuestro problema.
